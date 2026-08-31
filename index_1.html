@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pizza Hunt — Samundri</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{--red:#e63946;--orange:#f4a261;--gold:#ffd166;--dark:#0a0a0a;--dark2:#111111;--dark3:#1a1a1a;--dark4:#222222;--glass:rgba(255,255,255,0.04);--glass-border:rgba(255,255,255,0.08);--text:#f0f0f0;--muted:#888;}
+html{scroll-behavior:smooth;}
+body{font-family:'Inter',sans-serif;background:var(--dark);color:var(--text);overflow-x:hidden;}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:1000;padding:1.2rem 2rem;display:flex;justify-content:space-between;align-items:center;transition:all 0.4s ease;background:transparent;}
+nav.scrolled{background:rgba(10,10,10,0.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--glass-border);}
+.nav-logo{font-size:1.4rem;font-weight:800;color:#fff;letter-spacing:-0.5px;}
+.nav-logo span{color:var(--red);}
+.nav-links{display:flex;gap:2rem;list-style:none;}
+.nav-links a{color:var(--muted);text-decoration:none;font-size:0.9rem;font-weight:500;transition:color 0.3s;}
+.nav-links a:hover{color:#fff;}
+.nav-order{background:var(--red);color:#fff;border:none;padding:0.6rem 1.4rem;border-radius:8px;font-size:0.9rem;font-weight:600;cursor:pointer;transition:all 0.3s;}
+.nav-order:hover{background:#c1121f;transform:translateY(-1px);}
+.hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;background:none;border:none;}
+.hamburger span{width:24px;height:2px;background:#fff;display:block;transition:all 0.3s;}
+.mobile-menu{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(10,10,10,0.98);z-index:999;flex-direction:column;align-items:center;justify-content:center;gap:2rem;}
+.mobile-menu.open{display:flex;}
+.mobile-menu a{color:#fff;text-decoration:none;font-size:1.5rem;font-weight:600;}
+.mobile-close{position:absolute;top:1.5rem;right:2rem;background:none;border:none;color:#fff;font-size:1.8rem;cursor:pointer;}
+
+/* HERO */
+.hero{min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:2rem;position:relative;overflow:hidden;}
+.hero-bg{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%, rgba(230,57,70,0.15) 0%, transparent 60%), radial-gradient(ellipse at 80% 80%, rgba(244,162,97,0.08) 0%, transparent 50%), var(--dark);}
+.hero-glow{position:absolute;width:600px;height:600px;background:radial-gradient(circle, rgba(230,57,70,0.12) 0%, transparent 70%);top:50%;left:50%;transform:translate(-50%,-50%);animation:pulse 4s ease-in-out infinite;}
+@keyframes pulse{0%,100%{transform:translate(-50%,-50%) scale(1);}50%{transform:translate(-50%,-50%) scale(1.1);}}
+.hero-content{position:relative;z-index:1;max-width:800px;}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:var(--glass);border:1px solid var(--glass-border);padding:0.5rem 1.2rem;border-radius:50px;font-size:0.8rem;color:var(--gold);margin-bottom:2rem;animation:fadeUp 0.8s ease;}
+.hero-badge::before{content:'';width:8px;height:8px;background:var(--gold);border-radius:50%;animation:blink 1.5s infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0.3;}}
+.hero h1{font-size:clamp(2.8rem,7vw,5.5rem);font-weight:900;line-height:1.05;letter-spacing:-2px;margin-bottom:1.5rem;animation:fadeUp 0.8s ease 0.1s both;}
+.hero h1 .accent{color:var(--red);}
+.hero h1 .accent2{color:var(--orange);}
+.hero p{font-size:1.1rem;color:var(--muted);max-width:520px;margin:0 auto 2.5rem;line-height:1.7;animation:fadeUp 0.8s ease 0.2s both;}
+.hero-btns{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;animation:fadeUp 0.8s ease 0.3s both;}
+.btn-red{background:var(--red);color:#fff;border:none;padding:0.9rem 2rem;border-radius:10px;font-size:1rem;font-weight:700;cursor:pointer;transition:all 0.3s;text-decoration:none;display:inline-block;}
+.btn-red:hover{background:#c1121f;transform:translateY(-2px);box-shadow:0 8px 30px rgba(230,57,70,0.4);}
+.btn-ghost{background:transparent;color:#fff;border:1px solid var(--glass-border);padding:0.9rem 2rem;border-radius:10px;font-size:1rem;font-weight:600;cursor:pointer;transition:all 0.3s;text-decoration:none;display:inline-block;}
+.btn-ghost:hover{background:var(--glass);border-color:rgba(255,255,255,0.2);}
+.hero-stats{display:flex;gap:3rem;justify-content:center;margin-top:4rem;animation:fadeUp 0.8s ease 0.4s both;}
+.stat{text-align:center;}
+.stat-num{font-size:1.8rem;font-weight:800;color:#fff;}
+.stat-label{font-size:0.8rem;color:var(--muted);margin-top:2px;}
+.scroll-indicator{position:absolute;bottom:2rem;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;color:var(--muted);font-size:0.75rem;animation:fadeUp 1s ease 0.6s both;}
+.scroll-line{width:1px;height:40px;background:linear-gradient(to bottom, var(--muted), transparent);}
+
+/* SECTIONS */
+section{padding:6rem 2rem;}
+.container{max-width:1100px;margin:0 auto;}
+.section-label{font-size:0.75rem;font-weight:700;color:var(--red);letter-spacing:3px;text-transform:uppercase;margin-bottom:1rem;}
+.section-title{font-size:clamp(1.8rem,4vw,2.8rem);font-weight:800;letter-spacing:-1px;margin-bottom:1rem;}
+.section-sub{color:var(--muted);font-size:1rem;line-height:1.7;max-width:500px;}
+
+/* MENU */
+.menu-section{background:var(--dark2);}
+.menu-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-top:3rem;}
+.menu-card{background:var(--glass);border:1px solid var(--glass-border);border-radius:16px;padding:1.5rem;text-align:center;cursor:pointer;transition:all 0.3s;position:relative;overflow:hidden;}
+.menu-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg, rgba(230,57,70,0.05), transparent);opacity:0;transition:opacity 0.3s;}
+.menu-card:hover{transform:translateY(-6px);border-color:rgba(230,57,70,0.3);box-shadow:0 20px 40px rgba(0,0,0,0.4);}
+.menu-card:hover::before{opacity:1;}
+.menu-emoji{font-size:3rem;margin-bottom:1rem;display:block;}
+.menu-name{font-size:1rem;font-weight:700;margin-bottom:0.3rem;}
+.menu-price{font-size:0.85rem;color:var(--orange);font-weight:600;}
+.menu-sub{font-size:0.75rem;color:var(--muted);margin-top:0.3rem;}
+
+/* DEALS */
+.deals-section{background:var(--dark);}
+.deals-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1.5rem;margin-top:3rem;}
+.deal-card{background:var(--dark3);border:1px solid var(--glass-border);border-radius:20px;padding:1.8rem;position:relative;overflow:hidden;transition:all 0.3s;}
+.deal-card:hover{transform:translateY(-4px);box-shadow:0 24px 50px rgba(0,0,0,0.5);border-color:rgba(230,57,70,0.25);}
+.deal-ribbon{position:absolute;top:1.2rem;right:-0.5rem;background:var(--red);color:#fff;font-size:0.7rem;font-weight:700;padding:0.3rem 1rem;border-radius:4px 0 0 4px;letter-spacing:1px;}
+.deal-tag{display:inline-block;background:rgba(230,57,70,0.15);color:var(--red);font-size:0.7rem;font-weight:700;padding:0.3rem 0.8rem;border-radius:20px;margin-bottom:1rem;letter-spacing:1px;}
+.deal-name{font-size:1.2rem;font-weight:800;margin-bottom:0.8rem;}
+.deal-items{list-style:none;margin-bottom:1.2rem;}
+.deal-items li{font-size:0.85rem;color:var(--muted);padding:0.2rem 0;display:flex;align-items:center;gap:6px;}
+.deal-items li::before{content:'•';color:var(--orange);}
+.deal-bottom{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--glass-border);padding-top:1rem;margin-top:0.5rem;}
+.deal-price{font-size:1.4rem;font-weight:800;color:var(--gold);}
+.deal-old{font-size:0.8rem;color:var(--muted);text-decoration:line-through;margin-left:6px;}
+.deal-add{background:var(--red);color:#fff;border:none;width:36px;height:36px;border-radius:8px;font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.3s;flex-shrink:0;}
+.deal-add:hover{background:#c1121f;transform:scale(1.1);}
+
+/* WHY US */
+.why-section{background:var(--dark2);}
+.why-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-top:3rem;}
+.why-card{background:var(--glass);border:1px solid var(--glass-border);border-radius:16px;padding:1.5rem;transition:all 0.3s;}
+.why-card:hover{border-color:rgba(230,57,70,0.3);transform:translateY(-3px);}
+.why-icon{font-size:2rem;margin-bottom:0.8rem;}
+.why-title{font-size:0.95rem;font-weight:700;margin-bottom:0.3rem;}
+.why-desc{font-size:0.8rem;color:var(--muted);line-height:1.6;}
+
+/* REVIEWS */
+.reviews-section{background:var(--dark);}
+.reviews-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.5rem;margin-top:3rem;}
+.review-card{background:var(--dark3);border:1px solid var(--glass-border);border-radius:16px;padding:1.5rem;transition:all 0.3s;}
+.review-card:hover{transform:translateY(-3px);border-color:rgba(255,209,102,0.2);}
+.review-stars{color:var(--gold);font-size:0.9rem;margin-bottom:1rem;letter-spacing:2px;}
+.review-text{font-size:0.9rem;color:var(--muted);line-height:1.7;margin-bottom:1.2rem;font-style:italic;}
+.review-author{display:flex;align-items:center;gap:10px;}
+.review-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--red),var(--orange));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.85rem;flex-shrink:0;}
+.review-name{font-size:0.85rem;font-weight:600;}
+.review-loc{font-size:0.75rem;color:var(--muted);}
+
+/* ORDER */
+.order-section{background:var(--dark2);}
+.order-wrapper{display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:start;}
+.order-info h2{font-size:2rem;font-weight:800;letter-spacing:-1px;margin-bottom:1rem;}
+.order-info p{color:var(--muted);line-height:1.7;margin-bottom:2rem;}
+.payment-methods{display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:2rem;}
+.pay-badge{background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:0.6rem 1.2rem;font-size:0.85rem;font-weight:600;display:flex;align-items:center;gap:6px;}
+.delivery-info{background:linear-gradient(135deg,rgba(230,57,70,0.1),rgba(244,162,97,0.05));border:1px solid rgba(230,57,70,0.2);border-radius:14px;padding:1.2rem 1.5rem;font-size:0.9rem;}
+.delivery-info strong{color:var(--orange);}
+.order-form{background:var(--dark3);border:1px solid var(--glass-border);border-radius:20px;padding:2rem;}
+.cart-box{background:var(--dark);border:1px solid var(--glass-border);border-radius:12px;padding:1rem;margin-bottom:1.5rem;min-height:60px;}
+.cart-empty{font-size:0.85rem;color:var(--muted);text-align:center;padding:0.5rem;}
+.cart-row{display:flex;justify-content:space-between;font-size:0.85rem;color:var(--muted);padding:3px 0;}
+.cart-total-row{display:flex;justify-content:space-between;font-size:1rem;font-weight:700;color:#fff;border-top:1px solid var(--glass-border);margin-top:8px;padding-top:8px;}
+.form-label{font-size:0.8rem;color:var(--muted);margin-bottom:5px;display:block;font-weight:500;}
+.form-input{width:100%;background:var(--dark);border:1px solid var(--glass-border);border-radius:10px;padding:0.75rem 1rem;color:#fff;font-size:0.9rem;font-family:inherit;margin-bottom:1rem;transition:border-color 0.3s;}
+.form-input:focus{outline:none;border-color:rgba(230,57,70,0.5);}
+.form-input::placeholder{color:var(--muted);}
+.pay-opts{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1rem;}
+.pay-opt{border:1px solid var(--glass-border);border-radius:8px;padding:7px 14px;font-size:0.8rem;cursor:pointer;background:var(--dark);color:var(--muted);transition:all 0.3s;font-family:inherit;}
+.pay-opt.active{border-color:var(--red);color:var(--red);background:rgba(230,57,70,0.08);}
+.submit-btn{width:100%;background:var(--red);color:#fff;border:none;padding:1rem;border-radius:12px;font-size:1rem;font-weight:700;cursor:pointer;transition:all 0.3s;font-family:inherit;margin-top:0.5rem;}
+.submit-btn:hover{background:#c1121f;transform:translateY(-1px);box-shadow:0 8px 30px rgba(230,57,70,0.4);}
+.order-success{background:rgba(46,204,113,0.1);border:1px solid rgba(46,204,113,0.3);border-radius:10px;padding:1rem;text-align:center;color:#2ecc71;font-size:0.9rem;display:none;margin-top:1rem;}
+.jazzcash-note{background:rgba(255,209,102,0.08);border:1px solid rgba(255,209,102,0.2);border-radius:8px;padding:0.7rem 1rem;font-size:0.8rem;color:var(--gold);margin-bottom:1rem;display:none;}
+
+/* CONTACT */
+.contact-section{background:var(--dark);}
+.contact-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1.5rem;margin-top:3rem;}
+.contact-card{background:var(--dark3);border:1px solid var(--glass-border);border-radius:16px;padding:1.5rem;transition:all 0.3s;}
+.contact-card:hover{border-color:rgba(230,57,70,0.3);transform:translateY(-3px);}
+.contact-icon{font-size:1.8rem;margin-bottom:0.8rem;}
+.contact-label{font-size:0.75rem;color:var(--muted);font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:0.3rem;}
+.contact-value{font-size:0.95rem;font-weight:600;color:#fff;}
+.contact-value a{color:var(--orange);text-decoration:none;}
+.contact-value a:hover{text-decoration:underline;}
+
+/* FOOTER */
+footer{background:var(--dark2);border-top:1px solid var(--glass-border);padding:2.5rem 2rem;text-align:center;}
+.footer-logo{font-size:1.5rem;font-weight:800;margin-bottom:0.5rem;}
+.footer-logo span{color:var(--red);}
+.footer-tagline{font-size:0.85rem;color:var(--muted);margin-bottom:1.5rem;}
+.footer-links{display:flex;gap:2rem;justify-content:center;flex-wrap:wrap;margin-bottom:1.5rem;}
+.footer-links a{color:var(--muted);text-decoration:none;font-size:0.85rem;transition:color 0.3s;}
+.footer-links a:hover{color:#fff;}
+.footer-copy{font-size:0.8rem;color:var(--muted);}
+
+/* ANIMATIONS */
+@keyframes fadeUp{from{opacity:0;transform:translateY(30px);}to{opacity:1;transform:translateY(0);}}
+.fade-up{opacity:0;transform:translateY(30px);transition:all 0.7s ease;}
+.fade-up.visible{opacity:1;transform:translateY(0);}
+
+/* MOBILE */
+@media(max-width:768px){
+  .nav-links,.nav-order{display:none;}
+  .hamburger{display:flex;}
+  .hero h1{letter-spacing:-1px;}
+  .hero-stats{gap:1.5rem;}
+  .order-wrapper{grid-template-columns:1fr;}
+  section{padding:4rem 1.2rem;}
+  nav{padding:1rem 1.2rem;}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="navbar">
+  <div class="nav-logo">Pizza <span>Hunt</span></div>
+  <ul class="nav-links">
+    <li><a href="#menu">Menu</a></li>
+    <li><a href="#deals">Deals</a></li>
+    <li><a href="#order">Order</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <button class="nav-order" onclick="document.getElementById('order').scrollIntoView({behavior:'smooth'})">Order Now</button>
+  <button class="hamburger" onclick="toggleMenu()" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- MOBILE MENU -->
+<div class="mobile-menu" id="mobileMenu">
+  <button class="mobile-close" onclick="toggleMenu()">✕</button>
+  <a href="#menu" onclick="toggleMenu()">Menu</a>
+  <a href="#deals" onclick="toggleMenu()">Deals</a>
+  <a href="#order" onclick="toggleMenu()">Order</a>
+  <a href="#contact" onclick="toggleMenu()">Contact</a>
+  <a href="#order" onclick="toggleMenu()" style="color:var(--red);font-weight:800;">Order Now →</a>
+</div>
+
+<!-- HERO -->
+<section class="hero" id="home">
+  <div class="hero-bg"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-content">
+    <div class="hero-badge">🛵 Fast Delivery · Within 15 KM</div>
+    <h1>Fresh. <span class="accent">Hot.</span><br>Delivered <span class="accent2">Fast.</span></h1>
+    <p>Pizza Hunt serves freshly prepared pizza, burgers, shawarma, wings, and cold drinks in Samundri with fast local delivery.</p>
+    <div class="hero-btns">
+      <a href="#order" class="btn-red">Order Now</a>
+      <a href="#menu" class="btn-ghost">View Menu</a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat"><div class="stat-num">15km</div><div class="stat-label">Delivery Radius</div></div>
+      <div class="stat"><div class="stat-num">4+</div><div class="stat-label">Menu Categories</div></div>
+      <div class="stat"><div class="stat-num">8AM</div><div class="stat-label">Opens Daily</div></div>
+    </div>
+  </div>
+  <div class="scroll-indicator"><div class="scroll-line"></div>scroll</div>
+</section>
+
+<!-- MENU -->
+<section class="menu-section" id="menu">
+  <div class="container">
+    <div class="fade-up">
+      <div class="section-label">Our Menu</div>
+      <h2 class="section-title">What We Serve</h2>
+      <p class="section-sub">Everything made fresh, every single order. No shortcuts.</p>
+    </div>
+    <div class="menu-grid">
+      <div class="menu-card fade-up" onclick="addToCart('Small Pizza',750)"><span class="menu-emoji">🍕</span><div class="menu-name">Pizza</div><div class="menu-price">From PKR 750</div><div class="menu-sub">Small · Medium · Large · XL</div></div>
+      <div class="menu-card fade-up" onclick="addToCart('Simple Burger',250)"><span class="menu-emoji">🍔</span><div class="menu-name">Burgers</div><div class="menu-price">From PKR 250</div><div class="menu-sub">Simple · Zinger Special</div></div>
+      <div class="menu-card fade-up" onclick="addToCart('Shawarma',250)"><span class="menu-emoji">🌯</span><div class="menu-name">Shawarma</div><div class="menu-price">From PKR 250</div><div class="menu-sub">Single · Double</div></div>
+      <div class="menu-card fade-up" onclick="addToCart('4 Wings',380)"><span class="menu-emoji">🍗</span><div class="menu-name">Wings</div><div class="menu-price">From PKR 380</div><div class="menu-sub">4 Pcs · 8 Pcs Bucket</div></div>
+      <div class="menu-card fade-up" onclick="addToCart('Cold Drink',80)"><span class="menu-emoji">🥤</span><div class="menu-name">Cold Drinks</div><div class="menu-price">From PKR 80</div><div class="menu-sub">Coke · Pepsi · Sprite</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- DEALS -->
+<section class="deals-section" id="deals">
+  <div class="container">
+    <div class="fade-up">
+      <div class="section-label">Special Offers</div>
+      <h2 class="section-title">Today's Deals</h2>
+      <p class="section-sub">Combo deals built for every craving and every budget.</p>
+    </div>
+    <div class="deals-grid">
+      <div class="deal-card fade-up">
+        <div class="deal-ribbon">BESTSELLER</div>
+        <div class="deal-tag">FAMILY FEAST</div>
+        <div class="deal-name">Family Feast</div>
+        <ul class="deal-items">
+          <li>1 Large Pizza</li>
+          <li>2 Zinger Burgers</li>
+          <li>2 Wings</li>
+          <li>Free 1L Coke</li>
+        </ul>
+        <div class="deal-bottom">
+          <div><span class="deal-price">PKR 2,400</span><span class="deal-old">PKR 2,850</span></div>
+          <button class="deal-add" onclick="addToCart('Family Feast',2400)">+</button>
+        </div>
+      </div>
+      <div class="deal-card fade-up">
+        <div class="deal-ribbon">SAVINGS</div>
+        <div class="deal-tag">STUDENT BUNDLE</div>
+        <div class="deal-name">Student Bundle</div>
+        <ul class="deal-items">
+          <li>1 Medium Pizza</li>
+          <li>1 Zinger Burger</li>
+          <li>1 Shawarma</li>
+          <li>1 Cold Drink</li>
+        </ul>
+        <div class="deal-bottom">
+          <div><span class="deal-price">PKR 1,599</span><span class="deal-old">PKR 1,900</span></div>
+          <button class="deal-add" onclick="addToCart('Student Bundle',1599)">+</button>
+        </div>
+      </div>
+      <div class="deal-card fade-up">
+        <div class="deal-ribbon">SNACK TIME</div>
+        <div class="deal-tag">WINGS COMBO</div>
+        <div class="deal-name">Wings & Burger Combo</div>
+        <ul class="deal-items">
+          <li>4 Crispy Wings</li>
+          <li>1 Zinger Burger</li>
+          <li>1 Cold Drink</li>
+        </ul>
+        <div class="deal-bottom">
+          <div><span class="deal-price">PKR 749</span><span class="deal-old">PKR 890</span></div>
+          <button class="deal-add" onclick="addToCart('Wings & Burger Combo',749)">+</button>
+        </div>
+      </div>
+      <div class="deal-card fade-up">
+        <div class="deal-ribbon">WEEKEND</div>
+        <div class="deal-tag">PIZZA PARTY</div>
+        <div class="deal-name">Pizza Party</div>
+        <ul class="deal-items">
+          <li>2 Medium Pizzas</li>
+          <li>4 Wings</li>
+          <li>2 Shawarmas</li>
+          <li>2 Cold Drinks</li>
+        </ul>
+        <div class="deal-bottom">
+          <div><span class="deal-price">PKR 3,199</span><span class="deal-old">PKR 3,850</span></div>
+          <button class="deal-add" onclick="addToCart('Pizza Party',3199)">+</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHY US -->
+<section class="why-section">
+  <div class="container">
+    <div class="fade-up">
+      <div class="section-label">Why Us</div>
+      <h2 class="section-title">Why Pizza Hunt?</h2>
+    </div>
+    <div class="why-grid">
+      <div class="why-card fade-up"><div class="why-icon">🌿</div><div class="why-title">Fresh Ingredients</div><div class="why-desc">Every item prepared fresh on order. No pre-made shortcuts.</div></div>
+      <div class="why-card fade-up"><div class="why-icon">⚡</div><div class="why-title">Fast Delivery</div><div class="why-desc">Hot food at your door within Samundri and 15km radius.</div></div>
+      <div class="why-card fade-up"><div class="why-icon">✨</div><div class="why-title">Hygienic Kitchen</div><div class="why-desc">Clean preparation, quality you can trust every single time.</div></div>
+      <div class="why-card fade-up"><div class="why-icon">💰</div><div class="why-title">Affordable Prices</div><div class="why-desc">Premium taste at prices that make sense for everyone.</div></div>
+      <div class="why-card fade-up"><div class="why-icon">📱</div><div class="why-title">Easy Ordering</div><div class="why-desc">Order online or on WhatsApp — simple and fast.</div></div>
+      <div class="why-card fade-up"><div class="why-icon">❤️</div><div class="why-title">Local & Trusted</div><div class="why-desc">Your neighbourhood restaurant, proud to serve Samundri.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- REVIEWS -->
+<section class="reviews-section">
+  <div class="container">
+    <div class="fade-up">
+      <div class="section-label">Reviews</div>
+      <h2 class="section-title">What People Say</h2>
+    </div>
+    <div class="reviews-grid">
+      <div class="review-card fade-up">
+        <div class="review-stars">★★★★★</div>
+        <div class="review-text">"The zinger burger is honestly better than most big chains. Fast delivery too, came in under 30 minutes."</div>
+        <div class="review-author"><div class="review-avatar">AK</div><div><div class="review-name">Asad Khan</div><div class="review-loc">Samundri</div></div></div>
+      </div>
+      <div class="review-card fade-up">
+        <div class="review-stars">★★★★★</div>
+        <div class="review-text">"Ordered the Family Feast for our gathering. Everyone loved it. The pizza was fresh and hot on arrival."</div>
+        <div class="review-author"><div class="review-avatar">UR</div><div><div class="review-name">Usman Rafique</div><div class="review-loc">Karamsar</div></div></div>
+      </div>
+      <div class="review-card fade-up">
+        <div class="review-stars">★★★★★</div>
+        <div class="review-text">"Best shawarma in the area without a doubt. Clean, tasty, and very well priced. Will keep ordering."</div>
+        <div class="review-author"><div class="review-avatar">SM</div><div><div class="review-name">Sara Mahmood</div><div class="review-loc">Samundri</div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ORDER -->
+<section class="order-section" id="order">
+  <div class="container">
+    <div class="fade-up">
+      <div class="section-label">Place Order</div>
+      <h2 class="section-title">Order Online</h2>
+    </div>
+    <div class="order-wrapper">
+      <div class="order-info fade-up">
+        <p>Add items from our menu above, fill in your details, and your order goes straight to our WhatsApp. We confirm and deliver.</p>
+        <div class="payment-methods">
+          <div class="pay-badge">💵 Cash on Delivery</div>
+          <div class="pay-badge">📱 JazzCash</div>
+          <div class="pay-badge">📱 EasyPaisa</div>
+        </div>
+        <div class="delivery-info">
+          🛵 <strong>Free delivery</strong> within Samundri city.<br>
+          Delivery available up to <strong>15km</strong> from our location.<br>
+          📍 373 GB Karamsar, Samundri, Punjab
+        </div>
+      </div>
+      <div class="order-form fade-up">
+        <div class="cart-box" id="cartBox">
+          <div class="cart-empty" id="cartEmpty">No items yet — add from menu above</div>
+        </div>
+        <label class="form-label">Your name</label>
+        <input class="form-input" type="text" id="custName" placeholder="Muhammad Ali">
+        <label class="form-label">Phone number</label>
+        <input class="form-input" type="tel" id="custPhone" placeholder="03XX-XXXXXXX">
+        <label class="form-label">Delivery address</label>
+        <input class="form-input" type="text" id="custAddr" placeholder="Street, area, Samundri">
+        <label class="form-label">Payment method</label>
+        <div class="pay-opts">
+          <button class="pay-opt active" onclick="selectPay(this,'Cash on Delivery')">Cash on Delivery</button>
+          <button class="pay-opt" onclick="selectPay(this,'JazzCash — 0302-7086501')">JazzCash</button>
+          <button class="pay-opt" onclick="selectPay(this,'EasyPaisa — 0302-7086501')">EasyPaisa</button>
+        </div>
+        <div class="jazzcash-note" id="jazzNote">Send payment to <strong>0302-7086501</strong> and share screenshot on WhatsApp with your order.</div>
+        <button class="submit-btn" onclick="placeOrder()">Confirm Order via WhatsApp →</button>
+        <div class="order-success" id="orderSuccess">✅ Order sent! We'll confirm on WhatsApp shortly.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="contact-section" id="contact">
+  <div class="container">
+    <div class="fade-up">
+      <div class="section-label">Contact</div>
+      <h2 class="section-title">Find Us</h2>
+    </div>
+    <div class="contact-grid">
+      <div class="contact-card fade-up"><div class="contact-icon">📍</div><div class="contact-label">Address</div><div class="contact-value">373 GB Karamsar, Samundri, Punjab, Pakistan</div></div>
+      <div class="contact-card fade-up"><div class="contact-icon">📞</div><div class="contact-label">Phone & WhatsApp</div><div class="contact-value"><a href="https://wa.me/923027086501">0302-7086501</a></div></div>
+      <div class="contact-card fade-up"><div class="contact-icon">📸</div><div class="contact-label">Instagram</div><div class="contact-value"><a href="https://instagram.com/ahmadd_idc" target="_blank">@ahmadd_idc</a></div></div>
+      <div class="contact-card fade-up"><div class="contact-icon">🕐</div><div class="contact-label">Business Hours</div><div class="contact-value">8:00 AM – 10:00 PM Daily</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Pizza <span>Hunt</span></div>
+  <div class="footer-tagline">Fresh. Hot. Delivered Fast. — Samundri, Punjab</div>
+  <div class="footer-links">
+    <a href="#menu">Menu</a>
+    <a href="#deals">Deals</a>
+    <a href="#order">Order</a>
+    <a href="#contact">Contact</a>
+    <a href="https://wa.me/923027086501">WhatsApp</a>
+  </div>
+  <div class="footer-copy">© 2026 Pizza Hunt. All rights reserved.</div>
+</footer>
+
+<script>
+let cart=[];
+let payMethod='Cash on Delivery';
+
+function addToCart(name,price){
+  const ex=cart.find(i=>i.name===name);
+  if(ex)ex.qty++;
+  else cart.push({name,price,qty:1});
+  updateCart();
+  document.getElementById('order').scrollIntoView({behavior:'smooth'});
+}
+
+function updateCart(){
+  const box=document.getElementById('cartBox');
+  const empty=document.getElementById('cartEmpty');
+  if(!cart.length){
+    box.innerHTML='<div class="cart-empty" id="cartEmpty">No items yet — add from menu above</div>';
+    return;
+  }
+  let html='';
+  let total=0;
+  cart.forEach(i=>{
+    total+=i.price*i.qty;
+    html+=`<div class="cart-row"><span>${i.qty}× ${i.name}</span><span>PKR ${(i.price*i.qty).toLocaleString()}</span></div>`;
+  });
+  html+=`<div class="cart-total-row"><span>Total</span><span>PKR ${total.toLocaleString()}</span></div>`;
+  box.innerHTML=html;
+}
+
+function selectPay(el,method){
+  document.querySelectorAll('.pay-opt').forEach(o=>o.classList.remove('active'));
+  el.classList.add('active');
+  payMethod=method;
+  const note=document.getElementById('jazzNote');
+  note.style.display=(method.includes('Jazz')||method.includes('Easy'))?'block':'none';
+}
+
+function placeOrder(){
+  const name=document.getElementById('custName').value.trim();
+  const phone=document.getElementById('custPhone').value.trim();
+  const addr=document.getElementById('custAddr').value.trim();
+  if(!name||!phone||!addr){alert('Please fill in your name, phone, and address.');return;}
+  if(!cart.length){alert('Please add at least one item.');return;}
+  let total=cart.reduce((s,i)=>s+i.price*i.qty,0);
+  let msg='*New Order — Pizza Hunt!*\n\n';
+  msg+=`*Name:* ${name}\n*Phone:* ${phone}\n*Address:* ${addr}\n*Payment:* ${payMethod}\n\n*Items:*\n`;
+  cart.forEach(i=>msg+=`• ${i.qty}× ${i.name} — PKR ${(i.price*i.qty).toLocaleString()}\n`);
+  msg+=`\n*Total: PKR ${total.toLocaleString()}*`;
+  window.open(`https://wa.me/923027086501?text=${encodeURIComponent(msg)}`,'_blank');
+  document.getElementById('orderSuccess').style.display='block';
+  cart=[];
+  updateCart();
+}
+
+// NAV scroll
+window.addEventListener('scroll',()=>{
+  document.getElementById('navbar').classList.toggle('scrolled',window.scrollY>50);
+});
+
+// Mobile menu
+function toggleMenu(){
+  document.getElementById('mobileMenu').classList.toggle('open');
+}
+
+// Scroll animations
+const observer=new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');});
+},{threshold:0.1});
+document.querySelectorAll('.fade-up').forEach(el=>observer.observe(el));
+</script>
+</body>
+</html>
